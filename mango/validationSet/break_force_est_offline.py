@@ -28,8 +28,8 @@ class LinearRegression():
 
 class NaiveFbEstimator():
     def __init__(self):
-        self.slope = 2.78
-        self.bias = 0.345
+        self.slope = 2.408
+        self.bias = 1.666
     def fit(self,k):
         return self.slope * k + self.bias
 
@@ -44,8 +44,8 @@ class FbEstimator():
     '''
     Breaking Force estimator.
     '''
-    MAX_POINT_NUMS = 40
-    DEFAULT_FB = 3.65
+    MAX_POINT_NUMS = 60
+    DEFAULT_FB = 11.03
     def __init__(self):
         self.finished = False
 
@@ -95,17 +95,25 @@ class FbEstimator():
 
 if __name__ == "__main__":
     fb_estimator = FbEstimator()
-    file_time = "20241127_225301"
-    file_name = f'{file_time}/ForceData_{file_time}_refined.csv'
+    file_time = "data_20250630_155851"
+    file_name = f'data/{file_time}.csv'
+    result_name = f"data/{file_time}.txt"
     data = pd.read_csv(file_name)
-    now_force = data['Force'].to_numpy()
-    goal_force = data['GoalForce'].to_numpy()
-    now_pos = data['Pos'] .to_numpy()
-    time_list = data['Time'].to_numpy()
-    time_list = time_list - time_list[0]
+    now_force = data['now_force'].to_numpy()
+    goal_force = data['goal_force'].to_numpy()
+    now_pos = data['now_pos'] .to_numpy()
+    time_list = data['time'].to_numpy()
+  
+    st_point = 100
 
+    now_force = now_force[st_point:]
+    goal_force = goal_force[st_point:]
+    now_pos = now_pos[st_point:]
+    time_list = time_list[st_point:] - time_list[0]
 
-    gt_fb = np.load(f'{file_time}/break_force.npy').item()
+    with open(result_name, 'r') as f:
+        str = f.readline().strip()
+        gt_fb = float(str.split(' ')[-1])
 
 
     fb_list = []
@@ -118,6 +126,7 @@ if __name__ == "__main__":
         fb_list.append(fb_estimator.break_force)
         if fb_estimator.break_force > 1 and st == 0:
             st = idx
+        sigma_list.append(fb_estimator.sigma)
         if not has_print and fb_estimator.break_force < force * 2:
             print(fb_estimator.break_force,gt_fb)
             has_print = True
@@ -126,12 +135,12 @@ if __name__ == "__main__":
     plt.figure(1)
     bt = np.min(time_list[now_force > gt_fb])
     bf = gt_fb
-    plt.scatter(time_list,fb_list,label='Break Force',s=1, c='r')
+    plt.scatter(time_list,fb_list,label='Break Force',s=1,c='r')
     plt.fill([bt,bt+1,bt+1,bt],[0,0,15,15],color=[0.8,0.2,0.2],alpha=0.6)
     plt.axhline(y=bf,xmax=bt+1,linestyle=":",color='k')
     plt.plot(time_list,now_force,label='Now Force')
     plt.plot(time_list,goal_force,label="Goal Force")
-    plt.ylim([0,7])
+    plt.ylim([0,15])
     plt.xlim([0,bt+1])
     plt.xlabel('Time(s)')
     plt.ylabel('Force(N)')

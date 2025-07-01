@@ -1,4 +1,3 @@
-
 import numpy as np
 import time
 import matplotlib.pyplot as plt
@@ -28,9 +27,6 @@ class LinearRegression():
 
 class NaiveFbEstimator():
     def __init__(self):
-        # 3.33495985119918 0.25434990553556247
-        # 3.2097197129154593 0.5730591905359947
-        # 1.455115254838865 2.2478642932626576
         self.slope = 3.33
         self.bias = 0.254
     def fit(self,k):
@@ -48,7 +44,7 @@ class FbEstimator():
     Breaking Force estimator.
     '''
     MAX_POINT_NUMS = 60
-    DEFAULT_FB = 1.0
+    DEFAULT_FB = 7.008
     def __init__(self):
         self.finished = False
 
@@ -98,33 +94,21 @@ class FbEstimator():
 
 if __name__ == "__main__":
     fb_estimator = FbEstimator()
-    file_time = "20241113_151641"
-    file_name = f'{file_time}/ForceData_{file_time}.csv'
+    file_time = "20241113_143619"
+    file_name = f'{file_time}/ForceData_{file_time}_refined.csv'
     data = pd.read_csv(file_name)
     now_force = data['Force'].to_numpy()
     goal_force = data['GoalForce'].to_numpy()
     now_pos = data['Pos'] .to_numpy()
-    if now_pos[0] > 60:
-        now_pos /= 95.48
     time_list = data['Time'].to_numpy()
-    for i in range(1,200):
-        if abs(goal_force[i] - now_force[i-1]) < 1e-6:
-            st_point = i
-            break
-    else:
-        st_point = 10
+    time_list = time_list - time_list[0]
 
-    now_force = now_force[st_point:]
-    goal_force = goal_force[st_point:]
-    now_pos = now_pos[st_point:]
-    time_list = time_list[st_point:] - time_list[0]
 
 
     gt_fb = np.load(f'{file_time}/break_force.npy').item()
 
 
     fb_list = []
-    sigma_list = []
     has_print = False
     st,idx = 0,0
     for force,pos in zip(now_force,now_pos):
@@ -133,29 +117,15 @@ if __name__ == "__main__":
         fb_list.append(fb_estimator.break_force)
         if fb_estimator.break_force > 1 and st == 0:
             st = idx
-        sigma_list.append(fb_estimator.sigma)
         if not has_print and fb_estimator.break_force < force * 2:
             print(fb_estimator.break_force,gt_fb)
-            with open(f"{gt_fb}.csv","w") as f:
-                str_list = [str(force) for force in fb_list[st:]]
-                f.write(','.join(str_list))
             has_print = True
         idx += 1
 
-    pd = pd.DataFrame({
-        "Time" : time_list,
-        "BreakForce" : fb_list,
-        "Pos": now_pos,
-        "Force": now_force,
-        "GoalForce": goal_force
-    })
-    pd.to_csv('break_est.csv')
-    print(gt_fb)
     plt.figure(1)
     bt = np.min(time_list[now_force > gt_fb])
     bf = gt_fb
-    plt.scatter(time_list,fb_list,label='Break Force',s=1)
-    plt.scatter(time_list,sigma_list,label='Sigma',s=1)
+    plt.scatter(time_list,fb_list,label='Break Force',s=1,color='r')
     # plt.scatter(time_list,time_list,label='Time',s=1)
     # plt.plot(time_list,fb_list,label='Break Force')
     plt.fill([bt,bt+1,bt+1,bt],[0,0,15,15],color=[0.8,0.2,0.2],alpha=0.6)

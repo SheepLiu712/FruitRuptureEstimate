@@ -87,8 +87,7 @@ for idx in range(1, data_cnt+1):
     x_list.append(model.coef_[0])
     y_list.append(new_label)
 
-
-    # 9 12 22 24 29 31 32 
+ 
 
 
 plt.scatter(x_list,y_list,color=[1,0,0],s=3,label='data point')
