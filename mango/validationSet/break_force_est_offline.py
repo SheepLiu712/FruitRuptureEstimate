@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 class LinearRegression():
-    MIN_POINT_NUMS = 10
     def __init__(self,bias = True) -> None:
         self.coff = np.array([0,0])
         self.has_bias = bias

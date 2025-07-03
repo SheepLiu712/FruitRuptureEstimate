@@ -94,7 +94,7 @@ class FbEstimator():
 
 if __name__ == "__main__":
     fb_estimator = FbEstimator()
-    file_time = "20241113_143619"
+    file_time = "20240824_210940"
     file_name = f'{file_time}/ForceData_{file_time}_refined.csv'
     data = pd.read_csv(file_name)
     now_force = data['Force'].to_numpy()

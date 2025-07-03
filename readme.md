@@ -18,3 +18,8 @@ To run these two kinds of script, below required packages should be installed:
 
 ## PART2: sensitivity analysis
 It should be noticed that the data used in this part is the same as the validation data in PART1, so the rupture force prediction model is not trained again.
+
+In folder `parameter_test`, there are two kinds of python script, `<parameter>_test.py` and `plot_<parameter>_result.py`. The former is used to test the sensitivity of the specified parameter, and the latter is used to plot the result of the sensitivity analysis. There are also some subfolders in this part, which are used to store the data for testing and are the same as the validation data in PART1.
+
+To run these scripts, the same packages as PART1 are required, and additionally:
+- tqdm
